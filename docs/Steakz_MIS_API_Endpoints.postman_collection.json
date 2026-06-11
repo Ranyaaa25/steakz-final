@@ -1,0 +1,116 @@
+{
+  "info": {
+    "_postman_id": "c3f7d8b8-9e50-4d15-9ab7-df50c3ff0e4f",
+    "name": "Steakz MIS API Endpoints",
+    "description": "Professional Postman collection for the Steakz MIS lab demonstration. Import with the environment named Steakz MIS Lab Demonstration. This collection uses the root Express/Prisma app and the /api/lab JSON endpoints for API demonstrations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST Login Admin",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('admin login returns token', function () { pm.response.to.have.status(200); });", "const json = pm.response.json();", "pm.environment.set('adminToken', json.token);", "pm.environment.set('token', json.token);"], "type": "text/javascript" } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@steakz.com\",\n  \"password\": \"admin123\"\n}" }, "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] } }
+        },
+        {
+          "name": "POST Login Headquarter Manager",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('head office login returns token', function () { pm.response.to.have.status(200); });", "const json = pm.response.json();", "pm.environment.set('token', json.token);"], "type": "text/javascript" } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@steakz.com\",\n  \"password\": \"admin123\"\n}" }, "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] } }
+        },
+        {
+          "name": "POST Login Branch Manager",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('manager login returns token', function () { pm.response.to.have.status(200); });", "const json = pm.response.json();", "pm.environment.set('managerToken', json.token);"], "type": "text/javascript" } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"manager.mayfair@steakz.com\",\n  \"password\": \"MayfairManager123\"\n}" }, "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] } }
+        },
+        {
+          "name": "POST Login Chef",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('chef login returns token', function () { pm.response.to.have.status(200); });", "const json = pm.response.json();", "pm.environment.set('chefToken', json.token);"], "type": "text/javascript" } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"chef1.mayfair@steakz.com\",\n  \"password\": \"MayfairChef1123\"\n}" }, "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] } }
+        },
+        {
+          "name": "POST Login Cashier",
+          "description": "The current Steakz MIS uses the waiter role for cashier/service responsibilities.",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('cashier/waiter login returns token', function () { pm.response.to.have.status(200); });", "const json = pm.response.json();", "pm.environment.set('cashierToken', json.token);"], "type": "text/javascript" } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"waiter1.mayfair@steakz.com\",\n  \"password\": \"MayfairWaiter1123\"\n}" }, "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] } }
+        },
+        {
+          "name": "POST Register Customer",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('customer registration returns token', function () { pm.expect(pm.response.code).to.be.oneOf([201, 409]); });", "if (pm.response.code === 201) { const json = pm.response.json(); pm.environment.set('customerToken', json.token); }"], "type": "text/javascript" } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Test Customer\",\n  \"email\": \"test.customer@steakz.test\",\n  \"phone\": \"07123 456789\",\n  \"password\": \"Password123\",\n  \"branch\": \"Mayfair Prime Steakhouse\"\n}" }, "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] } }
+        },
+        {
+          "name": "POST Login Customer",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('customer login returns token', function () { pm.response.to.have.status(200); });", "const json = pm.response.json();", "pm.environment.set('customerToken', json.token);"], "type": "text/javascript" } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"customer@steakz.com\",\n  \"password\": \"customer123\"\n}" }, "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] } }
+        }
+      ]
+    },
+    {
+      "name": "Branches",
+      "item": [
+        { "name": "GET List Branches", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/lab/branches" } },
+        { "name": "POST Create Branch", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Lab Demo Steakhouse\",\n  \"slug\": \"lab-demo-steakhouse\",\n  \"area\": \"London\",\n  \"address\": \"1 Demo Street, London\",\n  \"phone\": \"020 7000 0000\",\n  \"hours\": \"Mon-Sun 12:00-23:00\",\n  \"description\": \"Temporary branch for lab CRUD demonstration.\"\n}" }, "url": "{{baseUrl}}/api/lab/branches" } },
+        { "name": "PUT Update Branch", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"phone\": \"020 7000 1111\",\n  \"description\": \"Updated branch description for lab demonstration.\"\n}" }, "url": "{{baseUrl}}/api/lab/branches/{{branchId}}" } },
+        { "name": "DELETE Delete Branch", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/lab/branches/{{branchId}}" } }
+      ]
+    },
+    {
+      "name": "Users and Roles",
+      "item": [
+        { "name": "GET List Users", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/lab/users" } },
+        { "name": "POST Create User", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Lab Demo Waiter\",\n  \"email\": \"lab.waiter@steakz.test\",\n  \"password\": \"Password123\",\n  \"role\": \"waiter\",\n  \"branchId\": \"{{branchId}}\"\n}" }, "url": "{{baseUrl}}/api/lab/users" } },
+        { "name": "PUT Update User", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Lab Demo Waiter\",\n  \"role\": \"waiter\"\n}" }, "url": "{{baseUrl}}/api/lab/users/{{userId}}" } },
+        { "name": "DELETE Delete User", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/lab/users/{{userId}}" } }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        { "name": "GET List Inventory", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/api/lab/inventory" } },
+        { "name": "POST Create Inventory Item", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"branchId\": \"{{branchId}}\",\n  \"itemName\": \"Ribeye Steak Stock\",\n  \"quantity\": 25,\n  \"reorderLevel\": 10,\n  \"supplier\": \"London Prime Butchers\"\n}" }, "url": "{{baseUrl}}/api/lab/inventory" } },
+        { "name": "PUT Update Inventory Item", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"itemName\": \"Ribeye Steak Stock\",\n  \"quantity\": 30,\n  \"reorderLevel\": 12,\n  \"supplier\": \"London Prime Butchers\"\n}" }, "url": "{{baseUrl}}/api/lab/inventory/{{inventoryItemId}}" } },
+        { "name": "PUT Use Stock", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{chefToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"quantity\": 2\n}" }, "url": "{{baseUrl}}/api/lab/inventory/{{inventoryItemId}}/use" } },
+        { "name": "PUT Add Stock", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"quantity\": 5\n}" }, "url": "{{baseUrl}}/api/lab/inventory/{{inventoryItemId}}/add-stock" } },
+        { "name": "DELETE Delete Inventory Item", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/api/lab/inventory/{{inventoryItemId}}" } }
+      ]
+    },
+    {
+      "name": "Orders and Sales",
+      "item": [
+        { "name": "GET List Orders", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/api/lab/orders" } },
+        { "name": "POST Create Walk-in Order", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{cashierToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"branchId\": \"{{branchId}}\",\n  \"customerName\": \"Walk-in Customer\",\n  \"items\": [{ \"menuItemId\": \"{{menuItemId}}\", \"quantity\": 2 }],\n  \"status\": \"Pending\"\n}" }, "url": "{{baseUrl}}/api/lab/orders" } },
+        { "name": "POST Create Customer Order", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"branchId\": \"{{branchId}}\",\n  \"items\": [{ \"menuItemId\": \"{{menuItemId}}\", \"quantity\": 1 }],\n  \"status\": \"Pending\"\n}" }, "url": "{{baseUrl}}/api/lab/orders" } },
+        { "name": "GET Single Order", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/api/lab/orders/{{orderId}}" } },
+        { "name": "PUT Update Order Status", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{chefToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"status\": \"Preparing\"\n}" }, "url": "{{baseUrl}}/api/lab/orders/{{orderId}}/status" } },
+        { "name": "DELETE Delete Order", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/api/lab/orders/{{orderId}}" } },
+        { "name": "GET Sales List", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{cashierToken}}" }], "url": "{{baseUrl}}/api/lab/sales" } },
+        { "name": "POST Create Sale", "description": "Sales are represented by completed orders in this MIS.", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{cashierToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"branchId\": \"{{branchId}}\",\n  \"customerName\": \"Sale Demo Customer\",\n  \"items\": [{ \"menuItemId\": \"{{menuItemId}}\", \"quantity\": 1 }],\n  \"status\": \"Completed\"\n}" }, "url": "{{baseUrl}}/api/lab/orders" } }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        { "name": "GET Dashboard Report", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/lab/reports/dashboard" } },
+        { "name": "GET Branch Report", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/api/lab/reports/branch/{{branchId}}" } },
+        { "name": "GET Sales Report", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/lab/reports/sales" } },
+        { "name": "GET Inventory Report", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/lab/reports/inventory" } },
+        { "name": "GET Low Stock Report", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/api/lab/reports/low-stock" } }
+      ]
+    },
+    {
+      "name": "Role Access Tests",
+      "item": [
+        { "name": "Admin can access all orders", "event": [{ "listen": "test", "script": { "exec": ["pm.test('admin receives orders', function () { pm.response.to.have.status(200); });"], "type": "text/javascript" } }], "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/api/lab/orders" } },
+        { "name": "Mayfair Branch Manager can access own branch orders", "event": [{ "listen": "test", "script": { "exec": ["pm.test('manager receives own branch orders', function () { pm.response.to.have.status(200); });"], "type": "text/javascript" } }], "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/api/lab/orders" } },
+        { "name": "Mayfair Chef can access own branch inventory", "event": [{ "listen": "test", "script": { "exec": ["pm.test('chef receives own branch inventory', function () { pm.response.to.have.status(200); });"], "type": "text/javascript" } }], "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{chefToken}}" }], "url": "{{baseUrl}}/api/lab/inventory" } },
+        { "name": "Mayfair Cashier can access own branch sales", "event": [{ "listen": "test", "script": { "exec": ["pm.test('cashier receives own branch sales', function () { pm.response.to.have.status(200); });"], "type": "text/javascript" } }], "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{cashierToken}}" }], "url": "{{baseUrl}}/api/lab/sales" } },
+        { "name": "Customer can access own orders", "event": [{ "listen": "test", "script": { "exec": ["pm.test('customer receives own orders', function () { pm.response.to.have.status(200); });"], "type": "text/javascript" } }], "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }], "url": "{{baseUrl}}/api/lab/orders" } },
+        { "name": "Branch Manager cannot access another branch report", "event": [{ "listen": "test", "script": { "exec": ["pm.test('manager is denied another branch report', function () { pm.response.to.have.status(403); });"], "type": "text/javascript" } }], "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }], "url": "{{baseUrl}}/api/lab/reports/branch/{{otherBranchId}}" } },
+        { "name": "Chef cannot access another branch inventory item", "event": [{ "listen": "test", "script": { "exec": ["pm.test('chef is denied another branch inventory mutation', function () { pm.response.to.have.status(403); });"], "type": "text/javascript" } }], "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{chefToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"quantity\": 1\n}" }, "url": "{{baseUrl}}/api/lab/inventory/{{inventoryItemId}}/use" } },
+        { "name": "Customer cannot access admin users list", "event": [{ "listen": "test", "script": { "exec": ["pm.test('customer is denied users list', function () { pm.response.to.have.status(403); });"], "type": "text/javascript" } }], "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }], "url": "{{baseUrl}}/api/lab/users" } }
+      ]
+    }
+  ]
+}

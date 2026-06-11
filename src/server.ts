@@ -6,6 +6,7 @@ import methodOverride from "method-override";
 import path from "node:path";
 import authRoutes from "./routes/authRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import labApiRoutes from "./routes/labApiRoutes.js";
 import pageRoutes from "./routes/pageRoutes.js";
 import { setLocals } from "./middleware/locals.js";
 
@@ -22,7 +23,7 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
   }
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-User-Role, X-User-Branch");
+  res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, X-User-Role, X-User-Branch");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   if (req.method === "OPTIONS") {
     res.sendStatus(204);
@@ -44,6 +45,7 @@ app.use(flash());
 app.use(setLocals);
 
 app.use(authRoutes);
+app.use(labApiRoutes);
 app.use(dashboardRoutes);
 app.use(pageRoutes);
 

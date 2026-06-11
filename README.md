@@ -74,6 +74,49 @@ npx tsc --noEmit
 npm run build
 ```
 
+## Postman Lab Demonstration
+
+Postman workspace name:
+
+```text
+Steakz MIS Lab Demonstration
+```
+
+Collection and environment files:
+
+```text
+docs/Steakz_MIS_API_Endpoints.postman_collection.json
+docs/Steakz_MIS_API_Endpoints.postman_environment.json
+```
+
+Lab endpoint documentation:
+
+```text
+docs/Lab_Presentation_Endpoints_ENV.md
+```
+
+The collection name is:
+
+```text
+Steakz MIS API Endpoints
+```
+
+It includes more than 25 endpoints covering authentication, role-based access, branch isolation, branch CRUD, users, inventory, orders, sales, reports, and customer registration.
+
+For the lab API, start the root app on the environment `baseUrl`:
+
+```bash
+PORT=4000 npm run start:dev
+```
+
+Or change the Postman `baseUrl` environment variable to:
+
+```text
+http://localhost:3000
+```
+
+Run the Auth folder first so Postman saves `adminToken`, `managerToken`, `chefToken`, `cashierToken`, and `customerToken`.
+
 ## About The `frontend/` Folder
 
 The `frontend/` folder is not the production Steakz website. It must not replace the root Express/Pug MIS portal on deployment.

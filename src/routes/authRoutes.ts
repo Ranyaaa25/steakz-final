@@ -26,6 +26,10 @@ function serializeUser(user: AuthUser) {
   };
 }
 
+function createLabToken(user: AuthUser) {
+  return Buffer.from(JSON.stringify(serializeUser(user)), "utf8").toString("base64url");
+}
+
 router.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body as { email?: string; password?: string };
   if (!email || !password) {
@@ -48,7 +52,7 @@ router.post("/api/auth/login", async (req, res) => {
     }
   }
 
-  return res.json({ user: sessionUser });
+  return res.json({ user: sessionUser, token: createLabToken(user) });
 });
 
 router.post("/api/auth/register", async (req, res) => {
@@ -93,6 +97,7 @@ router.post("/api/auth/register", async (req, res) => {
       ...sessionUser,
       phone,
     },
+    token: createLabToken(user),
   });
 });
 
