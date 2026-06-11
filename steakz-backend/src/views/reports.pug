@@ -1,0 +1,57 @@
+extends layout
+
+block content
+  h1 Reports
+  p.page-intro Simple management reports for Steakz.
+
+  .cards
+    .card
+      span Total Sales
+      strong £#{totalSales.toFixed(2)}
+    .card
+      span Number of Orders
+      strong= orderCount
+    .card
+      span Low Stock Items
+      strong= lowStock.length
+
+  .grid
+    section.panel
+      h2 Branch Sales Report
+      table
+        thead
+          tr
+            th Branch
+            th Orders
+            th Sales
+        tbody
+          each row in branches
+            tr
+              td= row.branch
+              td= row.orders
+              td £#{row.sales.toFixed(2)}
+    section.panel
+      h2 Simple Sales Chart
+      .bar-chart
+        each row in branches
+          .bar-row
+            span= row.branch
+            .bar(style=`width:${Math.max(row.sales, 5)}px`) £#{row.sales.toFixed(2)}
+
+  section.panel
+    h2 Menu Report
+    table
+      thead
+        tr
+          th Item
+          th Category
+          th Price
+          th Available
+      tbody
+        each item in menuItems
+          tr
+            td= item.name
+            td= item.category
+            td £#{item.price.toFixed(2)}
+            td= item.available ? "Yes" : "No"
+

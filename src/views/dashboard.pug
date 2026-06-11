@@ -1,0 +1,131 @@
+extends layout
+
+block content
+  .dashboard-page
+    .dashboard-hero
+      span.eyebrow Steakz MIS
+      h1= title
+      if currentUser.role === "head_office"
+        p.page-intro Estate-wide performance across all London branches.
+      else if currentUser.role === "manager"
+        p.page-intro Branch sales, reservations, staff, stock alerts, and top dishes for #{currentUser.branch}.
+      else if currentUser.role === "chef"
+        p.page-intro Kitchen orders and preparation status for #{currentUser.branch}.
+      else if currentUser.role === "waiter"
+        p.page-intro Service orders, reservations, and table flow for #{currentUser.branch}.
+      else
+        p.page-intro Your Steakz account overview.
+
+    .cards.kpi-grid
+      .card
+        span Total Sales
+        strong £#{salesTotal.toFixed(2)}
+      .card
+        span Orders
+        strong= orderCount
+      .card
+        span Reservations
+        strong= reservationCount
+      .card
+        span Menu Items
+        strong= menuCount
+      .card
+        span Low Stock
+        strong= lowStockCount
+      if currentUser.role === "head_office" || currentUser.role === "manager"
+        .card
+          span Staff
+          strong= userCount
+
+    .grid.dashboard-grid
+      section.panel
+        h2 Recent Orders
+        .compact-order-list
+          each order in orders
+            article.compact-order
+              div
+                strong ##{order.id} · #{order.customer}
+                span #{order.branch} · £#{order.total.toFixed(2)}
+                small
+                  each item in order.items
+                    span #{item.quantity}x #{item.menuItem.name} 
+              span(class=`status-badge status-${order.status.toLowerCase()}`)= order.status
+              if currentUser.role === "chef" || currentUser.role === "waiter"
+                form.inline(action=`/orders/${order.id}/status`, method="post")
+                  select(name="status")
+                    option(value="Pending") Pending
+                    option(value="Preparing") Preparing
+                    option(value="Ready") Ready
+                    if currentUser.role === "waiter"
+                      option(value="Served") Served
+                  button.small(type="submit") Update
+          else
+            p.page-intro No orders yet.
+
+      section.panel
+        h2 Recent Reservations
+        table
+          thead
+            tr
+              th Customer
+              th Branch
+              th Date
+              th Guests
+          tbody
+            each reservation in reservations
+              tr
+                td= reservation.customer
+                td= reservation.branch
+                td #{reservation.date} #{reservation.time}
+                td= reservation.guests
+
+      section.panel
+        h2 Sales by Branch
+        .bar-chart
+          each row in branchSales
+            .bar-row
+              span= row.branch
+              .bar(style=`width:${Math.max(8, Math.min(100, row.sales / Math.max(1, salesTotal) * 100))}%`) £#{row.sales.toFixed(2)}
+
+      section.panel
+        h2 Top Selling Dishes
+        .top-dish-list
+          each dish in topDishes
+            article.top-dish
+              img(src=dish.imageUrl, alt=dish.name)
+              div
+                strong= dish.name
+                span #{dish.quantity} sold · £#{dish.sales.toFixed(2)}
+          else
+            p.page-intro No dish sales yet.
+
+      section.panel
+        h2 Stock Alerts
+        table
+          thead
+            tr
+              th Item
+              th Branch
+              th Qty
+          tbody
+            each item in lowStock
+              tr.warning
+                td= item.itemName
+                td= item.branch
+                td= item.quantity
+
+      if currentUser.role === "head_office" || currentUser.role === "manager"
+        section.panel
+          h2 Staff List
+          table
+            thead
+              tr
+                th Name
+                th Role
+                th Branch
+            tbody
+              each staff in staffList
+                tr
+                  td= staff.name
+                  td= staff.role.replace("_", " ")
+                  td= staff.branch || "Head office"

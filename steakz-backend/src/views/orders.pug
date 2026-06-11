@@ -1,0 +1,50 @@
+extends layout
+
+block content
+  h1 Orders / Sales
+  if currentUser.role === "head_office"
+    p.page-intro Head office can review orders across all branches.
+  else if currentUser.role === "customer"
+    p.page-intro Customers can place and view their own orders.
+  else
+    p.page-intro Branch users can add and review orders only for their own branch.
+
+  section.panel
+    h2 Add Order
+    form.form-row(action="/orders", method="post")
+      if currentUser.role !== "customer"
+        input(name="customer", placeholder="Customer name", required)
+      if currentUser.role === "head_office" || currentUser.role === "customer"
+        select(name="branch")
+          each branch in branches
+            option(value=branch selected=currentUser.branch === branch)= branch
+      select(name="menuItemId", required)
+        each item in menuItems
+          option(value=item.id) #{item.name} - £#{item.price.toFixed(2)}
+      input(type="number", name="quantity", min="1", value="1", required)
+      if currentUser.role === "customer"
+        input(type="hidden", name="status", value="Pending")
+      else
+        select(name="status")
+          option(value="Completed") Completed
+          option(value="Pending") Pending
+      button(type="submit") Add Order
+
+  section.panel
+    h2 Order List
+    table
+      thead
+        tr
+          th Customer
+          th Branch
+          th Status
+          th Total
+          th Date
+      tbody
+        each order in orders
+          tr
+            td= order.customer
+            td= order.branch
+            td= order.status
+            td £#{order.total.toFixed(2)}
+            td= order.createdAt.toLocaleDateString()

@@ -1,0 +1,34 @@
+extends layout
+
+block content
+  .branch-page
+    section.branch-hero
+      .branch-hero-copy
+        span.eyebrow London branches
+        h1 Choose Your Steakz Branch
+        p.page-intro Orders are prepared and tracked by branch, so choose the dining room before adding food to your basket.
+        if selectedBranch
+          .selected-branch-pill Selected: #{selectedBranch}
+      .branch-hero-image
+        img(src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1400&q=80", alt="Premium London steakhouse interior")
+
+    section.branch-grid
+      each branch in branches
+        article.branch-card
+          a.branch-card-image(href=`/branches/${branch.slug}`)
+            img(src=branch.imageUrl, alt=branch.name)
+            span= branch.area
+          .branch-card-body
+            h2
+              a(href=`/branches/${branch.slug}`)= branch.name
+            p= branch.description
+            .branch-meta
+              span= branch.address
+              span= branch.phone
+            .branch-actions
+              a.secondary-link(href=`/branches/${branch.slug}`) View Branch
+              if currentUser
+                form(action=`/branches/${branch.slug}/select`, method="post")
+                  button(type="submit") Select Branch
+              else
+                a.button-link(href="/login") Login to Order

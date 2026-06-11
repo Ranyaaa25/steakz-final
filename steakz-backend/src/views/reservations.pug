@@ -1,0 +1,56 @@
+extends layout
+
+block content
+  h1 Reservations
+  if currentUser.role === "customer"
+    p.page-intro Create and view your own reservations.
+  else if currentUser.role === "head_office"
+    p.page-intro Head office can view reservations across all London branches.
+  else
+    p.page-intro Branch users can view reservations only for their own branch.
+
+  section.panel
+    h2 New Reservation
+    form.form-row(action="/reservations", method="post")
+      if currentUser.role !== "customer"
+        input(name="customer", placeholder="Customer name", required)
+        input(type="email", name="email", placeholder="Customer email", required)
+      input(name="phone", placeholder="Phone number", required)
+      if currentUser.role === "customer" || currentUser.role === "head_office"
+        select(name="branch", required)
+          each branch in branches
+            option(value=branch selected=currentUser.branch === branch)= branch
+      input(type="number", name="guests", min="1", value="2", required)
+      input(type="date", name="date", required)
+      input(type="time", name="time", required)
+      if currentUser.role !== "customer"
+        select(name="status")
+          option(value="Requested") Requested
+          option(value="Confirmed") Confirmed
+          option(value="Cancelled") Cancelled
+      button(type="submit") Save Reservation
+
+  section.panel
+    h2 Reservation List
+    table
+      thead
+        tr
+          th Customer
+          th Email
+          th Phone
+          th Branch
+          th Guests
+          th Date
+          th Time
+          th Status
+      tbody
+        each reservation in reservations
+          tr
+            td= reservation.customer
+            td= reservation.email
+            td= reservation.phone
+            td= reservation.branch
+            td= reservation.guests
+            td= reservation.date
+            td= reservation.time
+            td= reservation.status

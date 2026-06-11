@@ -1,0 +1,60 @@
+extends layout
+
+block content
+  h1 Inventory
+  p.page-intro Track stock levels and low stock items.
+
+  if currentUser.role === "head_office" || currentUser.role === "manager"
+    section.panel
+      h2 Add Inventory Item
+      form.form-row(action="/inventory", method="post")
+        input(name="itemName", placeholder="Item name", required)
+        if currentUser.role === "head_office"
+          select(name="branchId")
+            each branch in branches
+              option(value=branch.id)= branch.name
+        input(type="number", name="quantity", placeholder="Quantity", required)
+        input(type="number", name="reorderLevel", placeholder="Reorder level", required)
+        input(name="supplier", placeholder="Supplier", required)
+        button(type="submit") Add
+
+  section.panel
+    h2 Inventory List
+    table
+      thead
+        tr
+          th Item
+          th Branch
+          th Quantity
+          th Status
+          th Reorder Level
+          th Supplier
+          th Actions
+      tbody
+        each item in items
+          tr(class=item.quantity === 0 ? "stock-out" : item.quantity <= item.reorderLevel ? "warning" : "")
+            td= item.itemName
+            td= item.branch
+            td= item.quantity
+            td
+              if item.quantity === 0 || !item.available
+                span.status-badge.status-cancelled Out of stock
+              else if item.quantity <= item.reorderLevel
+                span.status-badge.status-pending Low stock
+              else
+                span.status-badge.status-ready Available
+            td= item.reorderLevel
+            td= item.supplier
+            td
+              form.inline(action=`/inventory/${item.id}/use`, method="post")
+                input.small-input(type="number", name="used", value="1", min="1")
+                button.small(type="submit", disabled=item.quantity === 0 || !item.available) Use
+              form.inline(action=`/inventory/${item.id}/add`, method="post")
+                input.small-input(type="number", name="added", value="1", min="1")
+                button.small(type="submit") Add Stock
+              form.inline(action=`/inventory/${item.id}/set`, method="post")
+                input.small-input(type="number", name="quantity", value=item.quantity, min="0")
+                button.small(type="submit") Set
+              form.inline(action=`/inventory/${item.id}/availability`, method="post")
+                input(type="hidden", name="available", value=item.available ? "false" : "true")
+                button.small(type="submit", disabled=!item.available && item.quantity === 0)= item.available ? "Mark Unavailable" : "Mark Available"

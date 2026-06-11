@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  .login-page
+    a.back-home-link(href="/home") Back to Home
+    .login-card
+      h1 Steakz MIS Portal
+      p Professional Management Information System for the Steakz restaurant chain.
+      if error && error.length
+        .message.error= error[0]
+      form(action="/login", method="post")
+        label Email
+        input(type="email", name="email", value="admin@steakz.com", required)
+        label Password
+        input(type="password", name="password", value="admin123", required)
+        button(type="submit") Login
+      .sample
+        h3 Sample Accounts
+        p Head Office: admin@steakz.com / admin123
+        p Manager: manager.mayfair-prime@steakz.com / MayfairManager123
+        p Chef: chef1.mayfair-prime@steakz.com / MayfairChefOne123
+        p Waiter: waiter1.mayfair-prime@steakz.com / MayfairWaiterOne123
+        p Customer: customer.mayfair-prime@example.com / MayfairCustomer123

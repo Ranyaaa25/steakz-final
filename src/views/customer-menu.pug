@@ -1,0 +1,68 @@
+extends layout
+
+block content
+  .customer-menu-page
+    header.customer-menu-nav
+      a.brand-home(href="/home")
+        span.brand-mark-small S
+        span
+          strong Steakz
+          small London Steakhouse
+      nav
+        a(href="/branches") Branches
+        a(href="/customer-menu") Menu
+        a(href="/basket") Basket #{basketCount ? "(" + basketCount + ")" : ""}
+        if currentUser
+          a(href="/dashboard") Dashboard
+        else
+          a(href="/login") Login
+
+    main.customer-menu-hero
+      .customer-menu-copy
+        span.eyebrow Customer ordering
+        h1 Premium Steakhouse Menu
+        if selectedBranch
+          p Order from #{selectedBranch}. Add plates, drinks, desserts, and sides to your basket before submitting to the branch kitchen.
+          a.button-link(href="/basket") View Basket
+        else
+          p Choose one London branch first so your basket and order are sent to the correct Steakz team.
+          a.button-link(href="/branches") Choose Branch
+      .customer-menu-photo
+        img(src="https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=1200&q=80", alt="Chargrilled steak served with sides")
+
+    if !selectedBranch
+      section.order-warning
+        strong Branch required
+        span Select a branch before adding items to your basket.
+
+    each category in categories
+      section.customer-menu-section
+        .customer-menu-intro
+          span= category
+          h2= category
+        .customer-dish-grid
+          each dish in customerMenu.filter((item) => item.category === category)
+            article.customer-dish-card(class=dish.available ? "" : "is-unavailable")
+              .customer-dish-image
+                img(src=dish.imageUrl, alt=dish.name)
+                span= dish.category
+              .customer-dish-body
+                .customer-dish-heading
+                  div
+                    h3= dish.name
+                    p= dish.description
+                  strong £#{dish.price.toFixed(2)}
+                if !dish.available
+                  .availability.unavailable Out of stock today
+                form.add-to-basket-form(action="/basket/add", method="post")
+                  input(type="hidden", name="menuItemId", value=dish.id)
+                  label(for=`quantity-${dish.id}`) Quantity
+                  input(id=`quantity-${dish.id}`, type="number", name="quantity", min="1", value="1")
+                  button(type="submit", disabled=!selectedBranch || !dish.available)= dish.available ? "Add to Basket" : "Unavailable"
+
+    section.customer-menu-cta
+      div
+        span Branch ordering
+        h2 Each order is sent only to the selected London branch.
+      p Managers, chefs, and waiters see their own branch orders, while head office can review everything.
+      a.button-link(href="/branches") Change Branch

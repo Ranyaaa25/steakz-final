@@ -1,0 +1,58 @@
+extends layout
+
+block content
+  h1= title
+  p.page-intro Welcome to the Steakz MIS dashboard.
+
+  .cards
+    .card
+      span Menu Items
+      strong= menuCount
+    .card
+      span Orders
+      strong= orderCount
+    .card
+      span Inventory Items
+      strong= inventoryCount
+    .card
+      span Total Sales
+      strong £#{salesTotal.toFixed(2)}
+    .card
+      span Reservations
+      strong= reservationCount
+    if currentUser.role === "head_office" || currentUser.role === "manager"
+      .card
+        span Users
+        strong= userCount
+
+  .grid
+    section.panel
+      h2 Recent Orders
+      table
+        thead
+          tr
+            th Customer
+            th Branch
+            th Status
+            th Total
+        tbody
+          each order in orders
+            tr
+              td= order.customer
+              td= order.branch
+              td= order.status
+              td £#{order.total.toFixed(2)}
+    section.panel
+      h2 Stock Levels
+      table
+        thead
+          tr
+            th Item
+            th Branch
+            th Quantity
+        tbody
+          each item in lowStock
+            tr(class=item.quantity <= item.reorderLevel ? "warning" : "")
+              td= item.itemName
+              td= item.branch
+              td= item.quantity

@@ -1,0 +1,74 @@
+extends layout
+
+block content
+  .menu-page
+    section.menu-hero
+      .menu-hero-copy
+        span.eyebrow Steakz steakhouse dining
+        h1 Grand Steakhouse Menu
+        p.page-intro Premium steaks, grill dishes, burgers, starters, and desserts presented like a professional restaurant menu while still connected to the management system.
+        .menu-stats
+          span #{displayItems.length} Dishes
+          span Live availability
+          span Staff managed
+      .menu-hero-image
+        img(src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=1400&q=80", alt="Dry-aged ribeye steak")
+
+    if currentUser.role === "head_office" || currentUser.role === "manager"
+      section.panel.menu-admin-panel
+        h2 Add Menu Item
+        form.form-row(action="/menu", method="post")
+          input(name="name", placeholder="Item name", required)
+          input(name="category", placeholder="Category", required)
+          input(type="number", step="0.01", name="price", placeholder="Price", required)
+          label.check
+            input(type="checkbox", name="available", checked)
+            | Available
+          button(type="submit") Add
+
+    section.menu-category-band
+      .category-label
+        span Curated selection
+        h2 Steakz House Signatures
+      .menu-grid
+        each item in displayItems
+          - const media = menuMedia[item.name] || { image: "https://images.pexels.com/photos/18496584/pexels-photo-18496584.jpeg?auto=compress&cs=tinysrgb&w=1200", description: "Prepared with Steakz house seasoning and served with polished restaurant presentation.", tag: item.category };
+          article.menu-card(class=item.available ? "" : "is-unavailable")
+            .menu-card-image
+              img(src=media.image, alt=item.name)
+              span.menu-tag= media.tag
+            .menu-card-body
+              .menu-card-heading
+                div
+                  span.menu-category= item.category
+                  h3= item.name
+                strong £#{item.price.toFixed(2)}
+              p= media.description
+              .menu-card-footer
+                span(class=item.available ? "availability available" : "availability unavailable")= item.available ? "Available today" : "Not available"
+                if currentUser.role === "head_office" || currentUser.role === "manager"
+                  form(action=`/menu/${item.id}/delete`, method="post")
+                    button.small.danger(type="submit") Delete
+
+    section.panel.menu-table-panel
+      h2 Menu Management List
+      table
+        thead
+          tr
+            th Name
+            th Category
+            th Price
+            th Available
+            if currentUser.role === "head_office" || currentUser.role === "manager"
+              th Action
+        tbody
+          each item in items
+            tr
+              td= item.name
+              td= item.category
+              td £#{item.price.toFixed(2)}
+              td= item.available ? "Yes" : "No"
+              if currentUser.role === "head_office" || currentUser.role === "manager"
+                td
+                  form(action=`/menu/${item.id}/delete`, method="post")
+                    button.small.danger(type="submit") Delete

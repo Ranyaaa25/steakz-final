@@ -1,0 +1,49 @@
+extends layout
+
+block content
+  h1 Staff / Users
+  if currentUser.role === "head_office"
+    p.page-intro Head office can add and remove users across every London branch.
+  else
+    p.page-intro Branch managers can add and remove users only for their own branch.
+
+  section.panel
+    h2 Add User
+    form.form-row(action="/users", method="post")
+      input(name="name", placeholder="Name", required)
+      input(type="email", name="email", placeholder="Email", required)
+      input(type="password", name="password", placeholder="Password", required)
+      select(name="role")
+        if currentUser.role === "head_office"
+          option(value="head_office") Head Office
+          option(value="manager") Manager
+        option(value="chef") Chef
+        option(value="waiter") Waiter
+        option(value="customer") Customer
+      if currentUser.role === "head_office"
+        select(name="branchId")
+          option(value="") No branch
+          each branch in branches
+            option(value=branch.id)= branch.name
+      button(type="submit") Add User
+
+  section.panel
+    h2 User List
+    table
+      thead
+        tr
+          th Name
+          th Email
+          th Role
+          th Branch
+          th Action
+      tbody
+        each user in users
+          tr
+            td= user.name
+            td= user.email
+            td= user.role
+            td= user.branch || "-"
+            td
+              form(action=`/users/${user.id}/delete`, method="post")
+                button.small.danger(type="submit") Delete

@@ -1,0 +1,48 @@
+extends layout
+
+block content
+  .branch-detail-page
+    section.branch-detail-hero
+      img(src=branch.image, alt=branch.name)
+      .branch-detail-copy
+        span.eyebrow= branch.area
+        h1= branch.name
+        p= branch.description
+        .branch-detail-actions
+          a.button-link(href="/reservations") Book a Table
+          if currentUser
+            form(action=`/branches/${branch.slug}/select`, method="post")
+              button(type="submit") Order from this Branch
+          else
+            a.secondary-link(href="/login") Login to Order
+          a.secondary-link(href="/branches") All Branches
+
+    section.branch-detail-grid
+      article.panel.branch-info-panel
+        h2 Branch Details
+        dl.branch-list
+          dt Address
+          dd= branch.address
+          dt Phone
+          dd= branch.phone
+          dt Opening Hours
+          dd= branch.hours
+      article.panel.branch-info-panel
+        h2 Order Routing
+        p.page-intro Orders and reservations created from this branch are stored with this branch ID and appear only to this branch team.
+
+    section.branch-gallery
+      each image in branch.galleryImages
+        img(src=image, alt=`${branch.name} gallery`)
+
+    section.panel.branch-reviews
+      h2 Guest Reviews
+      if reviews.length
+        .review-grid
+          each review in reviews
+            article.review-card
+              strong #{review.rating}/5
+              p= review.comment
+              small= review.customer.name
+      else
+        p.page-intro No reviews yet for this branch.

@@ -1,0 +1,43 @@
+extends layout
+
+block content
+  h1 Inventory
+  p.page-intro Track stock levels and low stock items.
+
+  if currentUser.role === "head_office" || currentUser.role === "manager"
+    section.panel
+      h2 Add Inventory Item
+      form.form-row(action="/inventory", method="post")
+        input(name="itemName", placeholder="Item name", required)
+        if currentUser.role === "head_office"
+          select(name="branch")
+            each branch in branches
+              option(value=branch)= branch
+        input(type="number", name="quantity", placeholder="Quantity", required)
+        input(type="number", name="reorderLevel", placeholder="Reorder level", required)
+        input(name="supplier", placeholder="Supplier", required)
+        button(type="submit") Add
+
+  section.panel
+    h2 Inventory List
+    table
+      thead
+        tr
+          th Item
+          th Branch
+          th Quantity
+          th Reorder Level
+          th Supplier
+          th Use Stock
+      tbody
+        each item in items
+          tr(class=item.quantity <= item.reorderLevel ? "warning" : "")
+            td= item.itemName
+            td= item.branch
+            td= item.quantity
+            td= item.reorderLevel
+            td= item.supplier
+            td
+              form.inline(action=`/inventory/${item.id}/use`, method="post")
+                input.small-input(type="number", name="used", value="1", min="1")
+                button.small(type="submit") Use

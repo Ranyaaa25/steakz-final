@@ -1,0 +1,40 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title #{title} | Steakz MIS
+    link(rel="stylesheet", href="/css/style.css")
+  body
+    if currentUser
+      .layout
+        aside.sidebar
+          h2 Steakz MIS
+          p.small #{currentUser.role.replace("_", " ").toUpperCase()} #{currentUser.branch ? "- " + currentUser.branch : ""}
+          nav
+            a(href="/home") Home
+            a(href="/dashboard") Dashboard
+            if currentUser.role === "customer"
+              a(href="/branches") Branches
+              a(href="/customer-menu") Menu
+              a(href="/basket") Basket #{basketCount ? "(" + basketCount + ")" : ""}
+            if currentUser.role !== "customer"
+              a(href="/menu") Menu Items
+            a(href="/orders") Orders / Sales
+            a(href="/reservations") Reservations
+            if currentUser.role !== "customer"
+              a(href="/inventory") Inventory
+            if currentUser.role === "head_office" || currentUser.role === "manager"
+              a(href="/users") Staff / Users
+            if currentUser.role === "head_office" || currentUser.role === "manager"
+              a(href="/reports") Reports
+          form(action="/logout", method="post")
+            button.logout(type="submit") Logout
+        main.content
+          if success && success.length
+            .message.success= success[0]
+          if error && error.length
+            .message.error= error[0]
+          block content
+    else
+      block content

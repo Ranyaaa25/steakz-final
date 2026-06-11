@@ -1,0 +1,80 @@
+extends layout
+
+block content
+  .booking-page
+    section.booking-hero
+      span.eyebrow Steakz reservations
+      h1 Book a Table
+      if currentUser.role === "customer"
+        p.page-intro Reserve your table at one of our London dining rooms. Your booking is private to your account and assigned branch.
+      else
+        p.page-intro Manage branch reservations with strict branch-level visibility.
+
+    section.panel.booking-panel
+      h2 New Booking
+      form.booking-form(action="/reservations", method="post")
+        label Branch
+        select(name="branchId", required)
+          each branch in branches
+            option(value=branch.id selected=(selectedBranch === branch.name || currentUser.branchId === branch.id))= branch.name
+        label Date
+        input(type="date", name="date", required)
+        label Time
+        input(type="time", name="time", required)
+        label Guests
+        input(type="number", name="guests", min="1", value="2", required)
+        label Customer Name
+        input(name="customer", value=currentUser.role === "customer" ? currentUser.name : "", placeholder="Customer name", required)
+        if currentUser.role !== "customer"
+          label Customer Email
+          input(type="email", name="email", placeholder="Customer email", required)
+        label Phone
+        input(name="phone", placeholder="Phone number", required)
+        label Notes
+        textarea(name="notes", rows="4", placeholder="Occasion, seating request, allergies")
+        if currentUser.role !== "customer"
+          label Status
+          select(name="status")
+            option(value="requested") Requested
+            option(value="confirmed") Confirmed
+            option(value="seated") Seated
+            option(value="completed") Completed
+            option(value="cancelled") Cancelled
+          label Table Number
+          input(name="tableNumber", placeholder="A12")
+        button(type="submit") Confirm Booking
+
+    section.reservation-grid
+      each reservation in reservations
+        article.reservation-card
+          .reservation-card-top
+            span= reservation.status
+            strong #{reservation.date} at #{reservation.time}
+          h2= reservation.customer
+          p #{reservation.guests} guests · #{reservation.branch}
+          p Table: #{reservation.tableNumber || "Not assigned"}
+          p= reservation.phone
+          if reservation.notes
+            small= reservation.notes
+          if currentUser.role === "head_office" || currentUser.role === "manager" || currentUser.role === "waiter"
+            form.inline(action=`/reservations/${reservation.id}/update`, method="post")
+              input.small-input(name="tableNumber", value=reservation.tableNumber, placeholder="Table")
+              select(name="status")
+                each status in ["requested", "confirmed", "seated", "completed", "cancelled"]
+                  option(value=status selected=reservation.status === status)= status
+              button.small(type="submit") Update
+          if currentUser.role === "customer" && reservation.status === "completed"
+            form.review-form(action="/reviews", method="post")
+              input(type="hidden", name="reservationId", value=reservation.id)
+              select(name="rating")
+                option(value="5") 5 stars
+                option(value="4") 4 stars
+                option(value="3") 3 stars
+                option(value="2") 2 stars
+                option(value="1") 1 star
+              textarea(name="comment", rows="2", placeholder="Leave a review")
+              button.small(type="submit") Submit Review
+      else
+        section.empty-basket
+          h2 No reservations yet.
+          p Confirmed bookings will appear here.

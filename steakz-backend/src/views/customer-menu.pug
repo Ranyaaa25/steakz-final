@@ -1,0 +1,51 @@
+extends layout
+
+block content
+  .customer-menu-page
+    header.customer-menu-nav
+      a.brand-home(href="/home")
+        span.brand-mark-small S
+        span
+          strong Steakz
+          small London Steakhouse
+      nav
+        a(href="/home") Home
+        a(href="/customer-menu") Menu
+        a(href="/login") Staff Login
+
+    main.customer-menu-hero
+      .customer-menu-copy
+        span.eyebrow Customer menu
+        h1 Top Quality Steakhouse Food
+        p Every plate below shows exactly what the customer receives, from the main protein to the sauce, garnish, bread, and side dishes.
+      .customer-menu-photo
+        img(src="https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=1200&q=80", alt="Chargrilled steak served with sides")
+
+    section.customer-menu-intro
+      span Real restaurant menu
+      h2 House selections prepared with premium beef, high-heat grilling, classic sauces, and table-service presentation.
+
+    section.customer-dish-grid
+      each dish in customerMenu
+        article.customer-dish-card
+          .customer-dish-image
+            img(src=dish.image, alt=dish.name)
+            span= dish.category
+          .customer-dish-body
+            .customer-dish-heading
+              div
+                h3= dish.name
+                p= dish.description
+              strong £#{dish.price.toFixed(2)}
+            .plate-contents
+              h4 What is on this plate
+              ul
+                each item in dish.plate
+                  li= item
+
+    section.customer-menu-cta
+      div
+        span Freshly prepared
+        h2 Steakhouse hospitality, clearly explained.
+      p Customers can read the dish, see the food, and know exactly what arrives at the table before ordering.
+      a.button-link(href="/home") Back to Home

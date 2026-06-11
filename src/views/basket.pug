@@ -1,0 +1,69 @@
+extends layout
+
+block content
+  .basket-page
+    section.basket-hero
+      .basket-hero-copy
+        span.eyebrow Customer basket
+        h1 Your Basket
+        if selectedBranch
+          p.page-intro Branch: #{selectedBranch}. Your order will be visible only to this branch team after submission.
+        else
+          p.page-intro Choose a branch before submitting an order.
+      .basket-summary-card
+        span Final total
+        strong £#{basketTotal.toFixed(2)}
+        if selectedBranch
+          a.secondary-link(href="/customer-menu") Continue Ordering
+        else
+          a.button-link(href="/branches") Choose Branch
+
+    if basketItems.length
+      section.basket-list
+        each item in basketItems
+          article.basket-item
+            img(src=item.menuItem.imageUrl, alt=item.menuItem.name)
+            .basket-item-main
+              span= item.menuItem.category
+              h2= item.menuItem.name
+              p= item.menuItem.description
+            .basket-item-numbers
+              dl
+                dt Quantity
+                dd
+                  .qty-controls
+                    form(action=`/basket/${item.menuItem.id}/decrement`, method="post")
+                      button.small(type="submit") -
+                    span= item.quantity
+                    form(action=`/basket/${item.menuItem.id}/increment`, method="post")
+                      button.small(type="submit") +
+                dt Price
+                dd £#{item.menuItem.price.toFixed(2)}
+                dt Subtotal
+                dd £#{item.subtotal.toFixed(2)}
+              form(action=`/basket/${item.menuItem.id}/remove`, method="post")
+                button.danger(type="submit") Remove
+
+      section.basket-checkout
+        .order-summary
+          h2 Order Summary
+          .summary-line
+            span Subtotal
+            strong £#{basketSubtotal.toFixed(2)}
+          .summary-line
+            span Service charge
+            strong £#{serviceCharge.toFixed(2)}
+          .summary-line
+            span VAT
+            strong £#{vat.toFixed(2)}
+          .summary-line.final
+            span Final total
+            strong £#{basketTotal.toFixed(2)}
+        form(action="/basket/submit", method="post")
+          button(type="submit", disabled=!selectedBranch) Submit Order
+        a.secondary-link(href="/customer-menu") Back to Menu
+    else
+      section.empty-basket
+        h2 Your basket is empty.
+        p Add steak plates, drinks, desserts, or sides from the menu.
+        a.button-link(href=selectedBranch ? "/customer-menu" : "/branches")= selectedBranch ? "Go to Menu" : "Choose Branch"

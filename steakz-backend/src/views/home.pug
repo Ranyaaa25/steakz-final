@@ -1,0 +1,71 @@
+extends layout
+
+block content
+  .home-page
+    header.home-nav
+      a.brand-home(href="/home")
+        span.brand-mark-small S
+        span
+          strong Steakz
+          small Restaurant Management System
+      nav
+        a(href="/home") Home
+        a(href="/customer-menu") Menu
+        a(href="/register") Create Account
+        a(href="/login") Staff Login
+        a(href="/dashboard") Dashboard
+
+    main.home-hero
+      .home-copy
+        span.eyebrow London steakhouse management
+        h1 Steakz brings premium steakhouse operations into one polished portal.
+        p Manage a premium steak menu, staff access, orders, inventory, and reports across multiple London Steakz branches.
+        .home-actions
+          a.button-link(href="/customer-menu") Customer Menu
+          a.button-link(href="/register") Reserve a Table
+          a.button-link(href="/login") Staff Login
+          a.secondary-link(href="/dashboard") Open Dashboard
+          a.secondary-link(href="/menu") Staff Menu
+      .home-photo-card
+        img(src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=1200&q=80", alt="Dry-aged ribeye steak")
+        .home-photo-caption
+          span Signature menu
+          strong Dry-aged ribeye, fillet mignon, sirloin, house burgers, and steakhouse sides.
+
+    section.access-strip(aria-label="Primary access")
+      a.access-card(href="/home")
+        span 01
+        strong Home
+        small Public restaurant welcome page
+      a.access-card(href="/login")
+        span 02
+        strong Staff Login
+        small Head office, manager, chef, and waiter portal
+      a.access-card(href="/dashboard")
+        span 03
+        strong Dashboard
+        small Sales, stock, orders, and reports
+
+    section.restaurant-showcase
+      .showcase-copy
+        span.eyebrow Premium steakhouse menu
+        h2 Built for a full-service restaurant, not a plain management screen.
+        p The public face now feels like a large restaurant website while the same system keeps role access, inventory, orders, and reports close for daily operations.
+      .showcase-gallery
+        img(src="https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=900&q=80", alt="Chargrilled steak")
+        img(src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80", alt="Steakhouse burger")
+        img(src="https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=900&q=80", alt="New York cheesecake")
+
+    section.home-features
+      article
+        span 01
+        h2 Role Access
+        p Head office, managers, chefs, waiters, and customers see only the pages they need.
+      article
+        span 02
+        h2 Menu & Orders
+        p Add menu items, record customer orders, and keep sales data organized.
+      article
+        span 03
+        h2 Inventory Reports
+        p Track stock levels, low-stock warnings, branch sales, and management totals.

@@ -1,0 +1,84 @@
+extends layout
+
+block content
+  .orders-page
+    .page-heading-row
+      div
+        h1= title
+        if currentUser.role === "head_office"
+          p.page-intro Head office can review orders across all branches.
+        else if currentUser.role === "customer"
+          p.page-intro Track your Steakz orders and kitchen progress.
+        else
+          p.page-intro Branch teams can see and update only their own branch orders.
+      if currentUser.role === "customer"
+        a.button-link(href=selectedBranch ? "/customer-menu" : "/branches")= selectedBranch ? "Order Again" : "Choose Branch"
+
+    if currentUser.role !== "customer"
+      section.panel
+        h2 Walk-in Order
+        form.form-row(action="/orders", method="post")
+          input(name="customer", placeholder="Customer name", required)
+          if currentUser.role === "head_office"
+            select(name="branchId", required)
+              each branch in branches
+                option(value=branch.id selected=currentUser.branchId === branch.id)= branch.name
+          select(name="menuItemId", required)
+            each item in menuItems
+              option(value=item.id) #{item.name} - £#{item.price.toFixed(2)}
+          input(type="number", name="quantity", min="1", value="1", required)
+          select(name="status")
+            option(value="Pending") Pending
+            option(value="Preparing") Preparing
+            option(value="Ready") Ready
+            option(value="Served") Served
+          button(type="submit") Create Order
+
+    section.order-card-grid
+      each order in orders
+        article.order-card
+          .order-card-top
+            div
+              span.order-number Order ##{order.id}
+              h2= order.branch
+              p.order-customer Customer: #{order.customer}
+              small= order.createdAt.toLocaleString()
+            span(class=`status-badge status-${order.status.toLowerCase()}`)= order.status
+          .order-items-strip
+            each item in order.items
+              .order-item-chip
+                img(src=item.menuItem.imageUrl, alt=item.menuItem.name)
+                span #{item.quantity}x #{item.menuItem.name}
+          .timeline
+            each stage in ["Pending", "Preparing", "Ready", "Served"]
+              span(class=["timeline-step", ["Pending", "Preparing", "Ready", "Served"].indexOf(stage) <= ["Pending", "Preparing", "Ready", "Served"].indexOf(order.status) ? "is-active" : ""])= stage
+          .order-card-footer
+            strong £#{order.total.toFixed(2)}
+            if currentUser.role !== "customer"
+              form(action=`/orders/${order.id}/status`, method="post")
+                select(name="status")
+                  if currentUser.role === "chef"
+                    option(value="Pending") Pending
+                    option(value="Preparing") Preparing
+                    option(value="Ready") Ready
+                  else
+                    option(value="Pending") Pending
+                    option(value="Preparing") Preparing
+                    option(value="Ready") Ready
+                    option(value="Served") Served
+                button.small(type="submit") Update
+            if currentUser.role === "customer" && (order.status === "Served" || order.status === "Completed")
+              form.review-form(action="/reviews", method="post")
+                input(type="hidden", name="orderId", value=order.id)
+                select(name="rating")
+                  option(value="5") 5 stars
+                  option(value="4") 4 stars
+                  option(value="3") 3 stars
+                  option(value="2") 2 stars
+                  option(value="1") 1 star
+                textarea(name="comment", rows="2", placeholder="Leave a review")
+                button.small(type="submit") Submit Review
+      else
+        section.empty-basket
+          h2 No orders yet.
+          p Your submitted orders will appear here with their branch and kitchen timeline.

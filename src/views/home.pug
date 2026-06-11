@@ -1,0 +1,96 @@
+extends layout
+
+block content
+  .site-shell
+    header.lux-nav
+      a.brand-home(href="/home")
+        span.brand-mark-small S
+        span
+          strong Steakz
+          small London Steakhouse
+      nav
+        a(href="/home") Home
+        a(href="/branches") Branches
+        a(href="/customer-menu") Menu
+        a(href="/reservations") Book
+        a(href="/basket") Basket #{basketCount ? "(" + basketCount + ")" : ""}
+        if currentUser
+          a(href="/dashboard") Dashboard
+        else
+          a(href="/login") Login
+
+    main.restaurant-hero
+      .restaurant-hero-overlay
+        span.eyebrow Dry-aged in London
+        h1 Premium Steaks in London
+        p Dry-aged British beef, fire-led cooking, polished hospitality, and candlelit dining rooms across the capital.
+        .home-actions
+          a.button-link(href="/reservations") Book a Table
+          a.secondary-link(href="/branches") Order Online
+
+    section.lux-section
+      .section-heading
+        span.eyebrow Signature plates
+        h2 Featured Dishes
+      .lux-card-grid
+        each dish in featuredDishes
+          article.menu-card.lux-card
+            .menu-card-image
+              img(src=dish.imageUrl, alt=dish.name)
+              span.menu-tag= dish.category
+            .menu-card-body
+              .menu-card-heading
+                div
+                  span.menu-category= dish.category
+                  h3= dish.name
+                strong £#{dish.price.toFixed(2)}
+              p= dish.description
+
+    section.lux-section.dark-band
+      .section-heading
+        span.eyebrow London dining rooms
+        h2 Branches
+      .branch-preview-grid
+        each branch in branches
+          a.branch-preview-card(href=`/branches/${branch.slug}`)
+            img(src=branch.imageUrl, alt=branch.name)
+            span= branch.area
+            strong= branch.name
+            small= branch.address
+      a.button-link(href="/branches") View All Branches
+
+    section.lux-section
+      .section-heading
+        span.eyebrow Guest notes
+        h2 Customer Reviews
+      .review-grid
+        article.review-card
+          p “The ribeye was perfectly rested, the room felt elegant, and service moved with real confidence.”
+          strong Amira L.
+        article.review-card
+          p “A proper London steakhouse. Gorgeous sides, beautiful cocktails, and a kitchen that knows beef.”
+          strong James W.
+        article.review-card
+          p “Mayfair Prime feels special from the first welcome. The fillet and bearnaise were faultless.”
+          strong Priya S.
+
+    section.lux-section.hours-section
+      .section-heading
+        span.eyebrow Open daily
+        h2 Opening Hours
+      .hours-grid
+        div
+          strong Monday to Thursday
+          span 12:00 - 23:00
+        div
+          strong Friday to Saturday
+          span 12:00 - 00:30
+        div
+          strong Sunday
+          span 12:00 - 22:00
+
+    footer.lux-footer
+      strong Steakz London
+      span 18 Berkeley Street, Mayfair, London W1J 8NF
+      span reservations@steakz.com · 020 7946 1010
+      span Dry-aged steaks, private dining, online ordering, and branch-managed hospitality.
