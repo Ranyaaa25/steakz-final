@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { clearStaffSession, customerLogin, customerRegister, staffLogin, type Customer, type User } from "./lib/api";
 
-type PublicRoute = "home" | "branches" | "menu" | "book" | "basket" | "orders" | "login";
+type PublicRoute = "home" | "branches" | "menu" | "book" | "basket" | "orders" | "login" | "register";
 type StaffRoute = "dashboard" | "menu-admin" | "orders-admin" | "inventory" | "users" | "reports";
 type Route = PublicRoute | StaffRoute;
 
@@ -112,6 +112,7 @@ function routeFromPath(pathname: string): Route {
   if (pathname === "/basket") return "basket";
   if (pathname === "/orders") return "orders";
   if (pathname === "/login" || pathname === "/admin-login") return "login";
+  if (pathname === "/register") return "register";
   if (pathname === "/dashboard") return "dashboard";
   if (pathname === "/menu") return "menu-admin";
   if (pathname === "/inventory") return "inventory";
@@ -129,6 +130,7 @@ function pathForRoute(route: Route) {
     basket: "/basket",
     orders: "/orders",
     login: "/login",
+    register: "/register",
     dashboard: "/dashboard",
     "menu-admin": "/menu",
     "orders-admin": "/orders",
@@ -222,15 +224,18 @@ export default function App() {
   if (route === "login") {
     return (
       <LoginPage
-        customer={customer}
         onCustomerLogin={customerLoggedIn}
         onStaffLogin={(user) => {
           setStaffUser(user);
           navigate("dashboard");
         }}
-        logout={logout}
+        navigate={navigate}
       />
     );
+  }
+
+  if (route === "register") {
+    return <RegisterPage onCustomerLogin={customerLoggedIn} navigate={navigate} />;
   }
 
   return (
@@ -296,20 +301,42 @@ function PublicNav({
 }) {
   return (
     <header className={className}>
-      <button className="brand-home link-button" onClick={() => navigate("home")}>
+      <a
+        className="brand-home"
+        href={pathForRoute("home")}
+        onClick={(event) => {
+          event.preventDefault();
+          navigate("home");
+        }}
+      >
         <span className="brand-mark-small">S</span>
         <span>
           <strong>Steakz</strong>
           <small>London Steakhouse</small>
         </span>
-      </button>
+      </a>
       <nav>
-        <button onClick={() => navigate("home")}>Home</button>
-        <button onClick={() => navigate("branches")}>Branches</button>
-        <button onClick={() => navigate("menu")}>Menu</button>
-        <button onClick={() => navigate("book")}>Book</button>
-        <button onClick={() => navigate("basket")}>Basket {basketCount ? `(${basketCount})` : ""}</button>
-        {currentUser ? <button onClick={() => navigate("dashboard")}>Dashboard</button> : <button onClick={() => navigate("login")}>Login</button>}
+        {(["home", "branches", "menu", "book", "basket"] as Route[]).map((routeName) => (
+          <a
+            key={routeName}
+            href={pathForRoute(routeName)}
+            onClick={(event) => {
+              event.preventDefault();
+              navigate(routeName);
+            }}
+          >
+            {routeName === "book" ? "Book" : routeName === "basket" ? `Basket ${basketCount ? `(${basketCount})` : ""}` : routeName[0].toUpperCase() + routeName.slice(1)}
+          </a>
+        ))}
+        <a
+          href={pathForRoute(currentUser ? "dashboard" : "login")}
+          onClick={(event) => {
+            event.preventDefault();
+            navigate(currentUser ? "dashboard" : "login");
+          }}
+        >
+          {currentUser ? "Dashboard" : "Login"}
+        </a>
       </nav>
     </header>
   );
@@ -350,12 +377,20 @@ function HomePage({ basketCount, currentUser, navigate }: { basketCount: number;
         </div>
         <div className="branch-preview-grid">
           {branches.slice(0, 3).map((branch) => (
-            <button className="branch-preview-card" key={branch.slug} onClick={() => navigate("branches")}>
+            <a
+              className="branch-preview-card"
+              key={branch.slug}
+              href={`/branches/${branch.slug}`}
+              onClick={(event) => {
+                event.preventDefault();
+                navigate("branches");
+              }}
+            >
               <img src={branch.imageUrl} alt={branch.name} />
               <span>{branch.area}</span>
               <strong>{branch.name}</strong>
               <small>{branch.address}</small>
-            </button>
+            </a>
           ))}
         </div>
         <button className="button-link" onClick={() => navigate("branches")}>View All Branches</button>
@@ -522,10 +557,12 @@ function BranchesPage({
         </div>
         <div className="branch-preview-grid">
           {branches.map((branch) => (
-            <button
+            <a
               className="branch-preview-card"
               key={branch.slug}
-              onClick={() => {
+              href={`/branches/${branch.slug}`}
+              onClick={(event) => {
+                event.preventDefault();
                 setSelectedBranch(branch.name);
                 navigate("menu");
               }}
@@ -534,7 +571,7 @@ function BranchesPage({
               <span>{branch.area}</span>
               <strong>{branch.name}</strong>
               <small>{branch.address}</small>
-            </button>
+            </a>
           ))}
         </div>
       </section>
@@ -676,30 +713,15 @@ function OrdersPage({ basketCount, currentUser, navigate }: { basketCount: numbe
 }
 
 function LoginPage({
-  customer,
   onCustomerLogin,
   onStaffLogin,
-  logout,
+  navigate,
 }: {
-  customer: Customer | null;
   onCustomerLogin: (customer: Customer) => void;
   onStaffLogin: (user: User) => void;
-  logout: () => void;
+  navigate: (route: Route) => void;
 }) {
-  const [mode, setMode] = useState<"customer" | "staff">("customer");
   const [message, setMessage] = useState("");
-
-  if (customer) {
-    return (
-      <main className="login-page">
-        <section className="login-card">
-          <h1>My Account</h1>
-          <p>Logged in as {customer.name}</p>
-          <button onClick={logout}>Logout</button>
-        </section>
-      </main>
-    );
-  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -708,18 +730,19 @@ function LoginPage({
     const email = String(data.get("email") || "");
     const password = String(data.get("password") || "");
     try {
-      if (mode === "staff") {
-        const user = await staffLogin(email, password);
-        if (user) onStaffLogin(user);
-        else setMessage("Staff login failed.");
-      } else {
-        const customerUser = await customerLogin(email, password);
-        if (customerUser) onCustomerLogin(customerUser);
-        else {
-          const registered = await customerRegister({ name: email.split("@")[0] || "Steakz Customer", email, phone: "", password, branch: branches[0].name });
-          onCustomerLogin(registered);
-        }
+      const staff = await staffLogin(email, password);
+      if (staff) {
+        onStaffLogin(staff);
+        return;
       }
+
+      const customerUser = await customerLogin(email, password);
+      if (customerUser) {
+        onCustomerLogin(customerUser);
+        return;
+      }
+
+      setMessage("Invalid email or password.");
     } catch {
       setMessage("Login failed. Please try again.");
     }
@@ -727,19 +750,75 @@ function LoginPage({
 
   return (
     <main className="login-page">
+      <button className="back-home-link" onClick={() => navigate("home")}>Back to Home</button>
       <section className="login-card">
-        <h1>{mode === "customer" ? "Customer Login" : "Staff Login"}</h1>
-        <p>{mode === "customer" ? "Login or create a customer account to order and book." : "Manager, chef, waiter, and head office access."}</p>
-        <div className="auth-tabs">
-          <button className={mode === "customer" ? "active" : ""} onClick={() => setMode("customer")}>Customer</button>
-          <button className={mode === "staff" ? "active" : ""} onClick={() => setMode("staff")}>Staff/Admin</button>
-        </div>
+        <h1>Steakz MIS Portal</h1>
+        <p>Professional Management Information System for the Steakz restaurant chain.</p>
         <form onSubmit={submit}>
           <label>Email<input name="email" type="email" required /></label>
           <label>Password<input name="password" type="password" required /></label>
           {message && <div className="message error">{message}</div>}
-          <button type="submit">{mode === "customer" ? "Continue" : "Login"}</button>
+          <button type="submit">Login</button>
         </form>
+        <div className="sample">
+          <p>New customer?</p>
+          <button className="secondary-link" onClick={() => navigate("register")}>Create Customer Account</button>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function RegisterPage({
+  onCustomerLogin,
+  navigate,
+}: {
+  onCustomerLogin: (customer: Customer) => void;
+  navigate: (route: Route) => void;
+}) {
+  const [message, setMessage] = useState("");
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMessage("");
+    const data = new FormData(event.currentTarget);
+    try {
+      const customer = await customerRegister({
+        name: String(data.get("name") || ""),
+        email: String(data.get("email") || ""),
+        phone: "",
+        password: String(data.get("password") || ""),
+        branch: String(data.get("branch") || branches[0].name),
+      });
+      onCustomerLogin(customer);
+    } catch {
+      setMessage("Could not create account. Please try again.");
+    }
+  }
+
+  return (
+    <main className="login-page">
+      <button className="back-home-link" onClick={() => navigate("home")}>Back to Home</button>
+      <section className="login-card">
+        <h1>Create Account</h1>
+        <p>Create a customer account before making a reservation.</p>
+        <form onSubmit={submit}>
+          <label>Full Name<input name="name" required /></label>
+          <label>Email<input name="email" type="email" required /></label>
+          <label>Password<input name="password" type="password" required /></label>
+          <label>
+            Preferred London Branch
+            <select name="branch" required defaultValue={branches[0].name}>
+              {branches.map((branch) => <option key={branch.slug}>{branch.name}</option>)}
+            </select>
+          </label>
+          {message && <div className="message error">{message}</div>}
+          <button type="submit">Create Account</button>
+        </form>
+        <div className="sample">
+          <p>Already have an account?</p>
+          <button className="secondary-link" onClick={() => navigate("login")}>Login</button>
+        </div>
       </section>
     </main>
   );
