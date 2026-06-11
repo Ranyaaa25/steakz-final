@@ -6,56 +6,6 @@
     sans-serif;
 }
 
-.redirect-page {
-  align-items: center;
-  background:
-    linear-gradient(rgba(5, 7, 6, 0.78), rgba(5, 7, 6, 0.9)),
-    url("https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=1800&q=80");
-  background-position: center;
-  background-size: cover;
-  color: #f7efe0;
-  display: grid;
-  min-height: 100vh;
-  padding: 24px;
-}
-
-.redirect-card {
-  background: rgba(12, 17, 16, 0.92);
-  border: 1px solid rgba(241, 210, 139, 0.22);
-  border-radius: 8px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
-  display: grid;
-  gap: 14px;
-  max-width: 560px;
-  padding: 34px;
-}
-
-.redirect-card h1 {
-  color: #f7efe0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(34px, 5vw, 58px);
-  line-height: 1;
-  margin: 0;
-}
-
-.redirect-card p {
-  color: rgba(247, 239, 224, 0.74);
-  line-height: 1.6;
-  margin: 0;
-}
-
-.redirect-card a {
-  background: linear-gradient(135deg, #c99b45, #8c6426);
-  border-radius: 8px;
-  color: #07110f;
-  display: inline-flex;
-  font-weight: 900;
-  justify-content: center;
-  padding: 13px 18px;
-  text-decoration: none;
-  width: fit-content;
-}
-
 * {
   box-sizing: border-box;
 }

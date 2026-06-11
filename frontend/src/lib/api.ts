@@ -69,7 +69,7 @@ export type Report = {
   topItem: string;
 };
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost/steakz.final/backend/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://steakz-final.onrender.com";
 
 export const steakzBranches = [
   "Mayfair Prime Steakhouse",
