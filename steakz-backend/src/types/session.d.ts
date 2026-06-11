@@ -6,6 +6,7 @@ export type UserSession = {
   email: string;
   role: string;
   branch?: string | null;
+  branchId?: number | null;
 };
 
 declare module "express-session" {

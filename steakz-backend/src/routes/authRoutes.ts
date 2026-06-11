@@ -5,6 +5,80 @@ import { londonBranches } from "../lib/branches.js";
 
 const router = Router();
 
+type AuthUser = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  branch: string | null;
+  branchId?: number | null;
+};
+
+function serializeUser(user: AuthUser) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    branch: user.branch,
+    branchId: user.branchId ?? null,
+  };
+}
+
+router.post("/api/auth/login", async (req, res) => {
+  const { email, password } = req.body as { email?: string; password?: string };
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required." });
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).json({ error: "Invalid email or password." });
+  }
+
+  const sessionUser = serializeUser(user);
+  req.session.user = sessionUser;
+  return res.json({ user: sessionUser });
+});
+
+router.post("/api/auth/register", async (req, res) => {
+  const { name, email, phone, password, branch } = req.body as {
+    name?: string;
+    email?: string;
+    phone?: string;
+    password?: string;
+    branch?: string;
+  };
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: "Name, email, and password are required." });
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    return res.status(409).json({ error: "An account already exists with that email." });
+  }
+
+  const user = await prisma.user.create({
+    data: {
+      name,
+      email,
+      password: await bcrypt.hash(password, 10),
+      role: "customer",
+      branch: branch || null,
+    },
+  });
+
+  const sessionUser = serializeUser(user);
+  req.session.user = sessionUser;
+  return res.status(201).json({
+    user: {
+      ...sessionUser,
+      phone,
+    },
+  });
+});
+
 router.get("/", (req, res) => {
   if (req.session.user) {
     return res.redirect("/dashboard");
