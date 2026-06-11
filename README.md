@@ -1,33 +1,54 @@
 # Steakz Premium Restaurant MIS
 
-Steakz is a premium London steakhouse website and restaurant management system. It includes customer registration, branch selection, database-backed basket/order persistence, reservations with table assignment, inventory, menu availability, reviews, and strict branch-based staff access.
-
-## Recommended Run From A Fresh VS Code Window
-
-Open the `frontend/` folder, then run:
-
-```bash
-npm install
-npm run dev
-```
-
-Open:
+This repository's real Steakz application is the root Express/Pug MIS portal:
 
 ```text
-http://localhost:5173
+src/server.ts
+src/routes/
+src/views/
+public/
+prisma/
 ```
 
-This starts the real Express/Prisma Steakz app automatically on `localhost:3000`, then serves it through Vite on `localhost:5173`. The frontend no longer redirects to a dead `localhost:3000` port.
+Use the root project for local running and production deployment. Do **not** deploy the separate React/Vite folder in `frontend/` as the live Steakz website.
 
-If `5173` is already in use, run:
+## Production Deployment
+
+The main live website should run on Render from the root project.
+
+Render settings:
+
+```text
+Root Directory: .
+Build Command: npm install && npm run build
+Start Command: npm start
+```
+
+Required environment variables on Render:
+
+```text
+DATABASE_URL=<your Neon PostgreSQL connection string>
+SESSION_SECRET=<a strong random secret>
+NODE_ENV=production
+```
+
+The Prisma datasource is PostgreSQL and reads `DATABASE_URL`, so Neon is the production database.
+
+After first deploy or after schema changes, run:
 
 ```bash
-npm run dev:clean
+npx prisma db push
+npm run seed
 ```
 
-That safely kills the old process on port `5173`, then starts Steakz again on the same URL. The frontend is configured with a strict port so it will not silently move to `5174`.
+Open the live Render app, not the Vercel React frontend:
 
-## Backend-Only Run
+```text
+https://steakz-final.onrender.com/home
+https://steakz-final.onrender.com/login
+```
+
+## Local Run
 
 From the root `steakz.final/` folder:
 
@@ -44,25 +65,20 @@ Open:
 http://localhost:3000/home
 ```
 
-## Project Structure
+## Build And Checks
 
-```text
-steakz.final/
-  frontend/
-  src/
-  prisma/
-  public/
-  README.md
-```
-
-The root `src/`, `prisma/`, and `public/` folders are the real backend/MIS app. The `frontend/` folder is a Vite launcher/proxy for your usual workflow.
-
-Build and type-check:
+From the root folder:
 
 ```bash
 npx tsc --noEmit
 npm run build
 ```
+
+## About The `frontend/` Folder
+
+The `frontend/` folder is not the production Steakz website. It must not replace the root Express/Pug MIS portal on deployment.
+
+Only use `frontend/` for local experiments or as a helper if it is made identical to the root Pug app. The deployed customer/staff experience should come from Render serving the root project.
 
 ## Branch Separation Rules
 
@@ -75,22 +91,34 @@ npm run build
 
 ## Customer Registration
 
-Customers are unlimited and self-register from:
+Customers register from:
 
 ```text
-http://localhost:3000/register
+/register
 ```
 
-Customer passwords are not displayed on the website. After registration, customers log in with their own email/password, choose a branch, add items to basket, submit orders, create reservations, and leave reviews after completed orders/reservations.
+Customers then log in at:
 
-## Seeded Staff Login Accounts
+```text
+/login
+```
 
-These accounts are seeded for testing and are documented here only, not displayed on the website.
+Passwords are never displayed on the website.
+
+## Seeded Login Accounts
+
+These accounts are seeded for testing and are documented here only.
 
 ### Head Office
 
 ```text
 admin@steakz.com / admin123
+```
+
+### Customer
+
+```text
+customer@steakz.com / customer123
 ```
 
 ### Mayfair Prime Steakhouse
@@ -143,18 +171,10 @@ waiter1.covent@steakz.com / CoventWaiter1123
 waiter2.covent@steakz.com / CoventWaiter2123
 ```
 
-## Branches
-
-- Mayfair Prime Steakhouse
-- Soho Flame Grill
-- Kensington Steak Room
-- Canary Wharf Grill House
-- Covent Garden Steakhouse
-
-## Key Workflows
+## Main Workflows
 
 - Customer order: register/login -> choose branch -> menu -> add to basket -> basket -> submit order -> My Orders.
-- Branch order security: Mayfair orders appear to Mayfair manager/chefs/waiters and Head Office only.
+- Branch order security: orders appear to the correct branch manager/chefs/waiters and Head Office only.
 - Reservations: customer creates reservation -> branch staff/admin see it -> manager/admin/waiter assigns table and status.
-- Inventory: manager/admin can use stock, add stock, set quantity, and mark items available/unavailable. Quantity never goes below zero.
-- Menu: manager/admin can mark dishes available/unavailable. Unavailable items cannot be added to customer basket.
+- Inventory: manager/admin can use stock, add stock, set quantity, and mark items available/unavailable.
+- Menu: manager/admin can mark dishes available/unavailable.

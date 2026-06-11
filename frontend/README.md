@@ -1,49 +1,37 @@
-# Steakz Frontend Launcher
+# Steakz React/Vite Folder
 
-This folder is the normal way to run the project in VS Code.
+This folder is **not** the production Steakz website.
 
-## Run From This Folder
+The real Steakz MIS portal is the root Express/Pug project:
+
+```text
+../src/server.ts
+../src/routes/
+../src/views/
+../public/
+../prisma/
+```
+
+Production should run on Render from the root project:
+
+```text
+https://steakz-final.onrender.com
+```
+
+Do not deploy this React/Vite folder to replace the live site unless it is intentionally rebuilt to be identical to the root Express/Pug app.
+
+For local development of the real app, use the root folder:
 
 ```bash
+cd ..
 npm install
-npm run dev
+npx prisma db push
+npm run seed
+npm run start:dev
 ```
 
 Open:
 
 ```text
-http://localhost:5173
+http://localhost:3000/home
 ```
-
-If port `5173` is already in use, run:
-
-```bash
-npm run dev:clean
-```
-
-That safely kills the old Vite process on port `5173`, then starts Steakz again. The config uses a strict port so it does not silently switch to `5174`.
-
-What happens:
-
-- The script starts the real Steakz Express/Prisma app on `http://localhost:3000` if it is not already running.
-- Vite starts on `http://localhost:5173`.
-- Vite proxies Steakz pages, CSS, images, forms, and routes to the real app.
-- The browser stays on `localhost:5173`, so you should not see `ERR_CONNECTION_REFUSED` from a dead redirect.
-
-## If You Only Want Vite
-
-```bash
-npm run dev:vite
-```
-
-Use this only for debugging the launcher shell. The full Steakz app needs the backend.
-
-## Build
-
-```bash
-npm run build
-```
-
-## Login Accounts
-
-Seeded staff accounts are documented in the root `README.md`. Passwords are not displayed on the website.

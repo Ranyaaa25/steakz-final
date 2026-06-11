@@ -1,8 +1,9 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "https://steakz-final.onrender.com/$1",
+      "permanent": false
     }
   ]
 }
