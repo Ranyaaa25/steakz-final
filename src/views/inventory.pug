@@ -32,14 +32,15 @@ block content
           th Actions
       tbody
         each item in items
-          tr(class=item.quantity === 0 ? "stock-out" : item.quantity <= item.reorderLevel ? "warning" : "")
+          - const displayedQuantity = item.available ? item.quantity : 0
+          tr(class=displayedQuantity === 0 ? "stock-out" : displayedQuantity <= item.reorderLevel ? "warning" : "")
             td= item.itemName
             td= item.branch
-            td= item.quantity
+            td= displayedQuantity
             td
-              if item.quantity === 0 || !item.available
+              if displayedQuantity === 0
                 span.status-badge.status-cancelled Out of stock
-              else if item.quantity <= item.reorderLevel
+              else if displayedQuantity <= item.reorderLevel
                 span.status-badge.status-pending Low stock
               else
                 span.status-badge.status-ready Available
@@ -48,13 +49,13 @@ block content
             td
               form.inline(action=`/inventory/${item.id}/use`, method="post")
                 input.small-input(type="number", name="used", value="1", min="1")
-                button.small(type="submit", disabled=item.quantity === 0 || !item.available) Use
+                button.small(type="submit", disabled=displayedQuantity === 0) Use
               form.inline(action=`/inventory/${item.id}/add`, method="post")
                 input.small-input(type="number", name="added", value="1", min="1")
                 button.small(type="submit") Add Stock
               form.inline(action=`/inventory/${item.id}/set`, method="post")
-                input.small-input(type="number", name="quantity", value=item.quantity, min="0")
+                input.small-input(type="number", name="quantity", value=displayedQuantity, min="0")
                 button.small(type="submit") Set
               form.inline(action=`/inventory/${item.id}/availability`, method="post")
                 input(type="hidden", name="available", value=item.available ? "false" : "true")
-                button.small(type="submit", disabled=!item.available && item.quantity === 0)= item.available ? "Mark Unavailable" : "Mark Available"
+                button.small(type="submit", disabled=!item.available && displayedQuantity === 0)= item.available ? "Mark Unavailable" : "Mark Available"

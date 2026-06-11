@@ -312,8 +312,8 @@ router.post("/inventory", requireRole(["head_office", "manager"]), async (req, r
       itemName: req.body.itemName,
       branch: branchRecord.name,
       branchId: branchRecord.id,
-      quantity: Number(req.body.quantity),
-      reorderLevel: Number(req.body.reorderLevel),
+      quantity: Math.max(0, Number(req.body.quantity) || 0),
+      reorderLevel: Math.max(0, Number(req.body.reorderLevel) || 0),
       supplier: req.body.supplier,
     },
   });
@@ -332,9 +332,13 @@ router.post("/inventory/:id/use", requireLogin, async (req, res) => {
     });
   }
 
+  const quantity = Math.max(0, item.quantity - Math.max(0, Number(req.body.used) || 0));
   await prisma.inventory.update({
     where: { id: item.id },
-    data: { quantity: Math.max(0, item.quantity - Number(req.body.used)) },
+    data: {
+      quantity,
+      available: quantity > 0 ? item.available : false,
+    },
   });
 
   req.flash("success", "Stock usage recorded.");
@@ -351,10 +355,11 @@ router.post("/inventory/:id/add", requireRole(["head_office", "manager"]), async
     });
   }
 
+  const currentQuantity = item.available ? item.quantity : 0;
   await prisma.inventory.update({
     where: { id: item.id },
     data: {
-      quantity: item.quantity + Math.max(0, Number(req.body.added) || 0),
+      quantity: currentQuantity + Math.max(0, Number(req.body.added) || 0),
       available: true,
     },
   });
@@ -391,9 +396,12 @@ router.post("/inventory/:id/availability", requireRole(["head_office", "manager"
     });
   }
 
+  const available = req.body.available === "true";
   await prisma.inventory.update({
     where: { id: item.id },
-    data: { available: req.body.available === "true" && item.quantity > 0 },
+    data: available
+      ? { available: item.quantity > 0 }
+      : { available: false, quantity: 0 },
   });
   req.flash("success", "Inventory availability updated.");
   res.redirect("/inventory");
